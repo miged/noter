@@ -1,0 +1,13 @@
+env/
+build/
+dist/
+lib/
+var/
+__pycache__/
+*.py[cod]
+*.so
+*$py.class
+
+pip-log.txt
+*.log
+*.sqlite

@@ -1,0 +1,25 @@
+<!doctype html>
+<title>Noter</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='skeleton.css') }}">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<div class=container>
+    <div class=row id=header>
+        <div class="ten columns">
+            <h1>Noter</h1>
+        </div>
+        <div class="two columns">
+            {% if not session.logged_in %}
+            <a class="button button-primary" href="{{ url_for('login') }}">Log In</a>
+            {% else %}
+            <a class="button button-primary" href="{{ url_for('logout') }}">Log Out</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for message in get_flashed_messages() %}
+    <p class=flash><strong>{{ message }}</strong></p>
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+</div>
