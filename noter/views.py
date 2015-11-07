@@ -1,4 +1,4 @@
-from noter import app, sqlite3, g
+from noter import app, g
 from flask import url_for, redirect, request, render_template, \
     abort, flash, session
 
