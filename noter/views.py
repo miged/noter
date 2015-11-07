@@ -1,11 +1,12 @@
 from noter import app, g
 from flask import url_for, redirect, request, render_template, \
     abort, flash, session
+from markdown2 import Markdown
 
 @app.route('/')
 def show_entries():
     cur = g.db.cursor().execute('select title, text from entries order by id desc')
-    entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
+    entries = [dict(title=row[0], text=Markdown().convert(row[1])) for row in cur.fetchall()]
     return render_template('show_entries.html', entries=entries)
 
 @app.route('/add', methods=['POST'])

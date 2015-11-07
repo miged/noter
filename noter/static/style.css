@@ -5,3 +5,7 @@
 #header a {
     margin-top: 12px;
 }
+
+dt {
+    font-weight: bold;
+}

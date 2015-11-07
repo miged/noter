@@ -1,9 +1,11 @@
 import sqlite3
 from flask import Flask, g
+#from flask.ext.misaka import Misaka
 from contextlib import closing
 
 app = Flask(__name__)
 app.config.from_pyfile('../config.cfg')
+#Misaka(app)
 
 # Connects to the database
 def connect_db():

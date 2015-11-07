@@ -13,7 +13,7 @@
 {% for entry in entries %}
     <hr>
     <h4>{{ entry.title }}</h4>
-    <p>{{ entry.text|safe }}</p>
+    {{ entry.text|safe }}
 {% else %}
     <li>No entries here so far!</li>
 {% endfor %}
