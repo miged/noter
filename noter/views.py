@@ -5,7 +5,7 @@ from markdown2 import Markdown
 
 @app.route('/')
 def show_entries():
-    cur = g.db.cursor().execute('select id, title, text from entries order by id desc')
+    cur = g.db.cursor().execute('SELECT id, title, text FROM entries ORDER BY id desc')
     entries = [dict(id=row[0], title=row[1], text=Markdown().convert(row[2])) for row in cur.fetchall()]
     return render_template('show_entries.html', entries=entries)
 
@@ -19,13 +19,13 @@ def add_entry():
     flash('New entry was successfully posted')
     return redirect(url_for('show_entries'))
 
-@app.route('/edit/<int:id>', methods=['POST'])
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_entry(id):
-    pass
+    return show_entries();
 
-@app.route('/delete/<int:id>', methods=['POST'])
+@app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delete_entry(id):
-    pass
+    return show_entries();
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
