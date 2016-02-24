@@ -1,4 +1,4 @@
-from noter import app, g, db, Entry
+from noter import app, db, Entry
 from flask import url_for, redirect, request, render_template, \
     abort, flash, session
 from markdown2 import Markdown
@@ -25,6 +25,9 @@ def edit_entry(id):
 def delete_entry(id):
     if not session.get('logged_in'):
         abort(401)
+    entry = Entry.query.filter_by(id=id).first()
+    db.session.delete(entry)
+    db.session.commit()
     return show_entries();
 
 @app.route('/login', methods=['GET', 'POST'])

@@ -3,25 +3,25 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-app.config.from_pyfile('../config.cfg')
 db = SQLAlchemy(app)
-db.create_all()
+app.config.from_pyfile('../config.cfg')
 
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
-    text = db.Column(db.Text)
+    body = db.Column(db.Text)
     date = db.Column(db.DateTime)
 
-    def __init__(self, title, text, post_date=None):
+    def __init__(self, title, body, post_date=None):
         self.title = title
-        self.text = text
+        self.body = body
         if post_date is None:
             post_date = datetime.utcnow()
 
     def __repr__(self):
         return '<title %r>' % self.title
 
+db.create_all()
 import noter.views
 
 if __name__ == '__main__':
