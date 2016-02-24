@@ -1,12 +1,11 @@
-from noter import app, g
+from noter import app, g, Entry
 from flask import url_for, redirect, request, render_template, \
     abort, flash, session
 from markdown2 import Markdown
 
 @app.route('/')
 def show_entries():
-    cur = g.db.cursor().execute('SELECT id, title, text FROM entries ORDER BY id desc')
-    entries = [dict(id=row[0], title=row[1], text=Markdown().convert(row[2])) for row in cur.fetchall()]
+    entries = Entry.query.order_by(Entry.id)
     return render_template('show_entries.html', entries=entries)
 
 @app.route('/add', methods=['POST'])
@@ -21,6 +20,9 @@ def add_entry():
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_entry(id):
+    if not session.get('logged_in'):
+        abort(401)
+    g.db.execute('delete from entries where id=?',['id'])
     return show_entries();
 
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
