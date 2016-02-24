@@ -1,31 +1,26 @@
-import sqlite3
 from flask import Flask, g
-from contextlib import closing
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_pyfile('../config.cfg')
+db = SQLAlchemy(app)
+db.create_all()
 
-# Connects to the database
-def connect_db():
-    con = sqlite3.connect(app.config['DATABASE'])
-    return con
+class Entry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text)
+    text = db.Column(db.Text)
+    date = db.Column(db.DateTime)
 
-# Initializes the database
-def init_db():
-    with closing(connect_db()) as db:
-        with app.open_resource('schema.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
+    def __init__(self, title, text, post_date=None):
+        self.title = title
+        self.text = text
+        if post_date is None:
+            post_date = datetime.utcnow()
 
-@app.before_request
-def before_request():
-    g.db = connect_db()
-
-@app.teardown_request
-def teardown_request(exception):
-    db = getattr(g, 'db', None)
-    if db is not None:
-        db.close()
+    def __repr__(self):
+        return '<title %r>' % self.title
 
 import noter.views
 
