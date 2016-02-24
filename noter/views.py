@@ -1,4 +1,4 @@
-from noter import app, g, Entry
+from noter import app, g, db, Entry
 from flask import url_for, redirect, request, render_template, \
     abort, flash, session
 from markdown2 import Markdown
@@ -12,21 +12,19 @@ def show_entries():
 def add_entry():
     if not session.get('logged_in'):
         abort(401)
-    g.db.execute('insert into entries (title, text) values (?, ?)',
-                 [request.form['title'], request.form['text']])
-    g.db.commit()
-    flash('New entry was successfully posted')
+    newEntry = Entry(request.form['title'], request.form['text'])
+    db.session.add(newEntry)
+    db.session.commit()
     return redirect(url_for('show_entries'))
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_entry(id):
-    if not session.get('logged_in'):
-        abort(401)
-    g.db.execute('delete from entries where id=?',['id'])
     return show_entries();
 
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delete_entry(id):
+    if not session.get('logged_in'):
+        abort(401)
     return show_entries();
 
 @app.route('/login', methods=['GET', 'POST'])
