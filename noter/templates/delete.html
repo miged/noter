@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class=row>
+    <h4>Confirm delete?</h4>
+    <form action="{{ url_for('delete_entry', id=entry.id) }}" method=post>
+        <input class=button-primary type=submit value=Delete>
+        <a class="button" href="{{ url_for('show_entries') }}">Back</a>
+    </form>
+</div>
+    <hr>
+    <div class=row>
+        <div class="nine columns">
+            <h4>{{ entry.title }}</h4>
+        </div>
+    </div>
+    {{ entry.body|safe }}
+
+{% endblock %}
