@@ -9,7 +9,7 @@ app.config.from_pyfile('../config.cfg')
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
-    body = db.Column(db.Text)
+    body = db.Column(db.Unicode)
     date = db.Column(db.DateTime)
 
     def __init__(self, title, body, post_date=None):

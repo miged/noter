@@ -6,7 +6,7 @@ from markdown2 import Markdown
 @app.route('/')
 def show_entries():
     entries = Entry.query.order_by(Entry.id)
-    return render_template('show_entries.html', entries=entries)
+    return render_template('show_entries.html', entries = entries)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -21,10 +21,17 @@ def add_entry():
 def edit_entry(id):
     return show_entries();
 
-@app.route('/delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/delete/<int:id>', methods=['GET'])
+def confirm_delete_entry(id):
+    if not session.get('logged_in'):
+        abort(403)
+    entry = Entry.query.filter_by(id=id).first()
+    return render_template('delete.html', entry = entry);
+
+@app.route('/delete/<int:id>', methods=['POST'])
 def delete_entry(id):
     if not session.get('logged_in'):
-        abort(401)
+        abort(403)
     entry = Entry.query.filter_by(id=id).first()
     db.session.delete(entry)
     db.session.commit()
@@ -36,7 +43,7 @@ def login():
     if request.method == 'POST':
         if (request.form['username'] != app.config['USERNAME']) or \
            (request.form['password'] != app.config['PASSWORD']):
-            error = 'Invalid info'
+            error = 'Wrong username/password combination'
         else:
             session['logged_in'] = True
             flash('You were logged in.')
