@@ -3,13 +3,13 @@
 }
 
 #header a {
-    margin-top: 12px;
+    margin-top: 15px;
 }
 
 dt {
     font-weight: bold;
 }
 
-#date {
+#entryDate {
 	margin-right: 10px;
 }

@@ -14,17 +14,17 @@
     <hr>
     <div class=row>
         <div class="seven columns">
-            <h4>{{ entry.title }}</h4>
+            <h4 id="entryTitle">{{ entry.title }}</h4>
         </div>
         {% if session.logged_in %}
         <div class="five columns">
-            <span id="date">{{ entry.post_date }}</span>
+            <span id="entryDate">{{ entry.post_date }}</span>
             <a class=button href="{{ url_for('edit_entry', id=entry.id) }}">Edit</a>
             <a class=button href="{{ url_for('delete_entry', id=entry.id) }}">Delete</a>
         </div>
         {% endif %}
     </div>
-    {{ entry.body|safe }}
+    <span id="entryBody">{{ entry.body|safe }}</span>
 {% else %}
     <li>No entries here so far!</li>
 {% endfor %}
