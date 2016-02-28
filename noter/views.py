@@ -5,7 +5,7 @@ from markdown2 import Markdown
 
 @app.route('/')
 def show_entries():
-    entries = Entry.query.order_by(Entry.id)
+    entries = entries_render(Entry.query.order_by(Entry.id))
     return render_template('show_entries.html', entries = entries)
 
 @app.route('/add', methods=['POST'])
@@ -25,7 +25,7 @@ def edit_entry(id):
 def confirm_delete_entry(id):
     if not session.get('logged_in'):
         abort(403)
-    entry = Entry.query.filter_by(id=id).first()
+    entry = entries_render(Entry.query.filter_by(id=id).first())
     return render_template('delete.html', entry = entry);
 
 @app.route('/delete/<int:id>', methods=['POST'])
@@ -55,3 +55,12 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out.')
     return redirect(url_for('show_entries'))
+
+def entries_render(entries):
+    try:
+        for e in entries:
+            e.body = Markdown().convert(e.body)
+    except TypeError:
+        entries.body = Markdown().convert(entries.body)
+
+    return entries
