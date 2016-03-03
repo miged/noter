@@ -17,10 +17,25 @@ def add_entry():
     db.session.commit()
     return redirect(url_for('show_entries'))
 
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+# Edit entry
+@app.route('/edit/<int:id>', methods=['GET'])
+def edit_entry_form(id):
+    if not session.get('logged_in'):
+        abort(403)
+    entry = Entry.query.filter_by(id=id).first()
+    return render_template('edit.html', entry = entry);
+
+@app.route('/edit/<int:id>', methods=['POST'])
 def edit_entry(id):
+    if not session.get('logged_in'):
+        abort(403)
+    entry = Entry.query.filter_by(id=id).first()
+    entry.title = request.form.get('title')
+    entry.body = request.form.get('body')
+    db.session.commit()
     return show_entries();
 
+# Delete entry
 @app.route('/delete/<int:id>', methods=['GET'])
 def confirm_delete_entry(id):
     if not session.get('logged_in'):
@@ -36,6 +51,7 @@ def delete_entry(id):
     db.session.delete(entry)
     db.session.commit()
     return show_entries();
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
