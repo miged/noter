@@ -1,6 +1,7 @@
-from noter import app, db, Entry
 from flask import url_for, redirect, request, render_template, \
     abort, flash, session
+from noter import app, db
+from models import Entry
 from markdown2 import Markdown
 
 @app.route('/')

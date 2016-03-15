@@ -1,2 +1,7 @@
-from noter import app
-app.run(host='0.0.0.0')
+from noter import app, db
+import noter.views
+import noter.models
+
+if __name__ == '__main__':
+	db.create_all()
+	app.run(host='0.0.0.0')
