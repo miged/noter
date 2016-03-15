@@ -2,6 +2,7 @@ from flask import url_for, redirect, request, render_template, \
     abort, flash, session
 from noter import app, db
 from models import Entry
+from forms import LoginForm
 from markdown2 import Markdown
 
 @app.route('/')
@@ -57,15 +58,16 @@ def delete_entry(id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-    if request.method == 'POST':
-        if (request.form['username'] != app.config['USERNAME']) or \
-           (request.form['password'] != app.config['PASSWORD']):
+    form = LoginForm()
+    if form.validate_on_submit():
+        if (form.name.data != app.config['USERNAME']) or \
+           (form.password.data != app.config['PASSWORD']):
             error = 'Wrong username/password combination'
         else:
             session['logged_in'] = True
             flash('You were logged in.')
             return redirect(url_for('show_entries'))
-    return render_template('login.html', error=error)
+    return render_template('login.html', error=error, form=form)
 
 @app.route('/logout')
 def logout():

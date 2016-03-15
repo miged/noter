@@ -7,15 +7,16 @@
         <p class=error><strong>Error:</strong> {{ error }}</p>
     {% endif %}
 </div>
-<form action="{{ url_for('login') }}" method=post>
+<form method="POST" action="{{ url_for('login') }}">
     <div class=row>
-        <input type=text name=username placeholder="Username" autofocus required>
+        {{ form.name.label }} {{ form.name(size=20) }}
     </div>
     <div class=row>
-        <input type=password name=password placeholder="Password" required>
+        {{ form.password.label }} {{ form.password(size=20) }}
     </div>
+    {{ form.csrf_token }}
     <div class=row>
-        <input class=button-primary type=submit value=login>
+        <input class="button-primary" type="submit" value="login">
         <a class="button" href="{{ url_for('show_entries') }}">Back</a>
     </div>
 </form>
