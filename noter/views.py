@@ -2,21 +2,24 @@ from flask import url_for, redirect, request, render_template, \
     abort, flash, session
 from noter import app, db
 from models import Entry
-from forms import LoginForm
+from forms import loginForm, entryForm
 from markdown2 import Markdown
 
 @app.route('/')
 def show_entries():
+    form = entryForm()
     entries = entries_render(Entry.query.order_by(Entry.id))
-    return render_template('show_entries.html', entries = entries)
+    return render_template('show_entries.html', entries = entries, form = form)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
-    if not session.get('logged_in'):
-        abort(401)
-    newEntry = Entry(request.form['title'], request.form['text'])
-    db.session.add(newEntry)
-    db.session.commit()
+    form = entryForm()
+    if form.validate_on_submit:
+        if not session.get('logged_in'):
+            abort(401)
+        newEntry = Entry(form.title.data, form.body.data)
+        db.session.add(newEntry)
+        db.session.commit()
     return redirect(url_for('show_entries'))
 
 # Edit entry
@@ -24,18 +27,24 @@ def add_entry():
 def edit_entry_form(id):
     if not session.get('logged_in'):
         abort(403)
+    form = entryForm()
     entry = Entry.query.filter_by(id=id).first()
-    return render_template('edit.html', entry = entry);
+    form.title.data = entry.title
+    form.body.data = entry.body
+    return render_template('edit.html', entry = entry, form = form);
 
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_entry(id):
-    if not session.get('logged_in'):
-        abort(403)
-    entry = Entry.query.filter_by(id=id).first()
-    entry.title = request.form.get('title')
-    entry.body = request.form.get('body')
-    db.session.commit()
-    return show_entries();
+    form = entryForm()
+    if form.validate_on_submit:
+        if not session.get('logged_in'):
+            abort(403)
+        entry = Entry.query.filter_by(id=id).first()
+        entry.title = form.title.data
+        entry.body = form.body.data
+        db.session.commit()
+    #return show_entries();
+    return redirect(url_for('show_entries'))
 
 # Delete entry
 @app.route('/delete/<int:id>', methods=['GET'])
@@ -58,7 +67,7 @@ def delete_entry(id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-    form = LoginForm()
+    form = loginForm()
     if form.validate_on_submit():
         if (form.name.data != app.config['USERNAME']) or \
            (form.password.data != app.config['PASSWORD']):
