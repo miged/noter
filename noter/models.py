@@ -1,4 +1,6 @@
-from noter import db
+from noter import bcrypt, db
+
+from sqlalchemy.ext.hybrid import hybrid_property
 import datetime
 
 class Entry(db.Model):
@@ -6,6 +8,7 @@ class Entry(db.Model):
     title = db.Column(db.Text)
     body = db.Column(db.Unicode)
     post_date = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __init__(self, title, body, post_date=None):
         self.title = title
@@ -15,3 +18,16 @@ class Entry(db.Model):
 
     def __repr__(self):
         return '<title %r>' % self.title
+
+class User(db.Model):
+	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	username = db.Column(db.String(25), unique=True)
+	_password = db.Column(db.String(128))
+
+	@hybrid_property
+	def password(self):
+		return self._password
+
+	@password.setter
+	def _set_password(self, plaintext):
+		self._password = bcrypt.generate_password_hash(plaintext)

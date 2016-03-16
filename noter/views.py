@@ -1,10 +1,11 @@
 from flask import url_for, redirect, render_template, abort, \
     flash, session
 from noter import app, db
-from models import Entry
-from forms import loginForm, entryForm
+from models import Entry, User
+from forms import loginForm, entryForm, signupForm
 from markdown2 import Markdown
 
+## Entry
 @app.route('/')
 def show_entries():
     form = entryForm()
@@ -62,6 +63,27 @@ def delete_entry(id):
     db.session.commit()
     return show_entries();
 
+def entries_render(entries):
+    try:
+        for e in entries:
+            e.body = Markdown().convert(e.body)
+    except TypeError:
+        entries.body = Markdown().convert(entries.body)
+
+    return entries
+
+
+## User
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = signupForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, password=form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('index'))
+        
+    return render_template('signup.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -83,11 +105,4 @@ def logout():
     flash('You were logged out.')
     return redirect(url_for('show_entries'))
 
-def entries_render(entries):
-    try:
-        for e in entries:
-            e.body = Markdown().convert(e.body)
-    except TypeError:
-        entries.body = Markdown().convert(entries.body)
 
-    return entries

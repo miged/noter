@@ -6,6 +6,11 @@ class loginForm(Form):
 	name = StringField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
 
+class signupForm(Form):
+	name = StringField('Username', validators=[DataRequired()])
+	password = PasswordField('Password', validators=[DataRequired()])
+	confirmPass = PasswordField('Confirm Password', validators=[DataRequired()])
+
 class entryForm(Form):
 	title = StringField('Title')
 	body = TextAreaField('Text', validators=[DataRequired()])
