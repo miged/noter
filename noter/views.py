@@ -43,7 +43,6 @@ def edit_entry(id):
         entry.title = form.title.data
         entry.body = form.body.data
         db.session.commit()
-    #return show_entries();
     return redirect(url_for('show_entries'))
 
 # Delete entry
