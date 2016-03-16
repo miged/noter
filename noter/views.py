@@ -1,5 +1,5 @@
-from flask import url_for, redirect, request, render_template, \
-    abort, flash, session
+from flask import url_for, redirect, render_template, abort, \
+    flash, session
 from noter import app, db
 from models import Entry
 from forms import loginForm, entryForm
