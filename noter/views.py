@@ -29,10 +29,11 @@ def add_entry():
 # Edit entry
 @app.route('/edit/<int:id>', methods=['GET'])
 def edit_entry_form(id):
-    if not session.get('logged_in'):
-        abort(403)
-    form = entryForm()
     entry = Entry.query.filter_by(id=id).first()
+    if not session.get('logged_in') or session['user_id'] != entry.user_id:
+        abort(403)
+
+    form = entryForm()
     form.title.data = entry.title
     form.body.data = entry.body
     return render_template('edit.html', entry = entry, form = form);
@@ -41,9 +42,9 @@ def edit_entry_form(id):
 def edit_entry(id):
     form = entryForm()
     if form.validate_on_submit:
-        if not session.get('logged_in'):
-            abort(403)
         entry = Entry.query.filter_by(id=id).first()
+        if not session.get('logged_in') or session['user_id'] != entry.user_id:
+            abort(403)
         entry.title = form.title.data
         entry.body = form.body.data
         db.session.commit()
@@ -52,16 +53,16 @@ def edit_entry(id):
 # Delete entry
 @app.route('/delete/<int:id>', methods=['GET'])
 def confirm_delete_entry(id):
-    if not session.get('logged_in'):
-        abort(403)
     entry = entries_render(Entry.query.filter_by(id=id).first())
+    if not session.get('logged_in') or session['user_id'] != entry.user_id:
+        abort(403)
     return render_template('delete.html', entry = entry);
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_entry(id):
-    if not session.get('logged_in'):
-        abort(403)
     entry = Entry.query.filter_by(id=id).first()
+    if not session.get('logged_in') or session['user_id'] != entry.user_id:
+        abort(403)
     db.session.delete(entry)
     db.session.commit()
     return redirect(url_for('index'))
