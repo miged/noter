@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+{% block body %}
+<div class=row>
+    <h4>Register</h4>
+    {% if error %}
+        <p class=error><strong>Error:</strong> {{ error }}</p>
+    {% endif %}
+</div>
+<form method="POST" action="{{ url_for('signup') }}">
+    <div class=row>
+        {{ form.name.label }} {{ form.name(size=20) }}
+    </div>
+    <div class=row>
+        {{ form.password.label }} {{ form.password(size=20) }}
+    </div>
+    {{ form.csrf_token }}
+    <div class=row>
+        <input class="button-primary" type="submit" value="Sign Up">
+        <a class="button" href="{{ url_for('index') }}">Back</a>
+    </div>
+</form>
+{% endblock %}
