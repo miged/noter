@@ -91,7 +91,6 @@ def signup():
             user = User(form.name.data, form.password.data)
             db.session.add(user)
             db.session.commit()
-
             session['logged_in'] = True
             session['user_id'] = user.id
             return redirect(url_for('show_entries'))

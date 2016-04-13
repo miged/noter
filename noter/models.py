@@ -29,11 +29,3 @@ class User(db.Model):
 		self.username = user
 		self._password = bcrypt.generate_password_hash(passw)
 		print self._password
-
-	@hybrid_property
-	def password(self):
-		return self._password
-
-	#@password.setter
-	#def _set_password(self, plaintext):
-	#	self._password = bcrypt.generate_password_hash(plaintext)
