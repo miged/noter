@@ -13,3 +13,8 @@ dt {
 #entryDate {
 	margin-right: 10px;
 }
+
+#username {
+	font-weight: bold;
+	margin-right: 5px;
+}

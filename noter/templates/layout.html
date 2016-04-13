@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <title>{% block title %}{% endblock %} - Noter</title>
+    <title>{% block title %}{% endblock %}Noter</title>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='skeleton.css') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -8,16 +8,19 @@
     <div class=container>
         <div class=row id=header>
             <div class="eight columns">
-                <h1><a href="{{ url_for('show_entries') }}">Noter</a></h1>
+                <h1><a href="{{ url_for('index') }}">Noter</a></h1>
             </div>
+            {% if not session.logged_in %}
             <div class="four columns">
-                {% if not session.logged_in %}
                 <a class="button button-primary" href="{{ url_for('signup') }}">Register</a>
                 <a class="button button-primary" href="{{ url_for('login') }}">Log In</a>
-                {% else %}
-                <a class="button button-primary" href="{{ url_for('logout') }}">Log Out</a>
-                {% endif %}
             </div>
+            {% else %}
+            <div class="four columns">
+                User: <span id="username">{{ session.name }}</span>
+                <a class="button button-primary" href="{{ url_for('logout') }}">Log Out</a>
+            </div>
+            {% endif %}
         </div>
         {% for message in get_flashed_messages() %}
         <p class=flash><strong>{{ message }}</strong></p>

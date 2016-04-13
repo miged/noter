@@ -5,16 +5,13 @@ from models import Entry, User
 from forms import loginForm, entryForm, signupForm
 from markdown2 import Markdown
 
+## Entry
 @app.route('/')
 def index():
-    return render_template('index.html')
-
-## Entry
-@app.route('/entries')
-def show_entries():
     form = entryForm()
     if not session.get('logged_in'):
-        abort(403)
+        return render_template('index.html')
+    user = User.query.filter_by(id=session['user_id']).first()
     entries = entries_render(Entry.query.filter_by(user_id=session['user_id']).order_by(Entry.id))
     return render_template('show_entries.html', entries = entries, form = form)
 
@@ -27,7 +24,7 @@ def add_entry():
         newEntry = Entry(form.title.data, form.body.data, session['user_id'])
         db.session.add(newEntry)
         db.session.commit()
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('index'))
 
 # Edit entry
 @app.route('/edit/<int:id>', methods=['GET'])
@@ -50,7 +47,7 @@ def edit_entry(id):
         entry.title = form.title.data
         entry.body = form.body.data
         db.session.commit()
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('index'))
 
 # Delete entry
 @app.route('/delete/<int:id>', methods=['GET'])
@@ -67,7 +64,7 @@ def delete_entry(id):
     entry = Entry.query.filter_by(id=id).first()
     db.session.delete(entry)
     db.session.commit()
-    return show_entries();
+    return redirect(url_for('index'))
 
 def entries_render(entries):
     try:
@@ -93,7 +90,8 @@ def signup():
             db.session.commit()
             session['logged_in'] = True
             session['user_id'] = user.id
-            return redirect(url_for('show_entries'))
+            session['name'] = user.username
+            return redirect(url_for('index'))
         else:
             error = 'Username not available'
         
@@ -114,8 +112,9 @@ def login():
         else:
             session['logged_in'] = True
             session['user_id'] = user.id
+            session['name'] = user.username
             flash('You were logged in.')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('index'))
 
     return render_template('login.html', error=error, form=form)
 

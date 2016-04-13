@@ -28,4 +28,3 @@ class User(db.Model):
 	def __init__(self, user, passw):
 		self.username = user
 		self._password = bcrypt.generate_password_hash(passw)
-		print self._password
