@@ -1,15 +1,21 @@
 from flask import url_for, redirect, render_template, abort, \
     flash, session
-from noter import app, db
+from noter import app, db, bcrypt
 from models import Entry, User
 from forms import loginForm, entryForm, signupForm
 from markdown2 import Markdown
 
-## Entry
 @app.route('/')
+def index():
+    return render_template('index.html')
+
+## Entry
+@app.route('/entries')
 def show_entries():
     form = entryForm()
-    entries = entries_render(Entry.query.order_by(Entry.id))
+    if not session.get('logged_in'):
+        abort(403)
+    entries = entries_render(Entry.query.filter_by(user_id=session['user_id']).order_by(Entry.id))
     return render_template('show_entries.html', entries = entries, form = form)
 
 @app.route('/add', methods=['POST'])
@@ -18,7 +24,7 @@ def add_entry():
     if form.validate_on_submit:
         if not session.get('logged_in'):
             abort(401)
-        newEntry = Entry(form.title.data, form.body.data)
+        newEntry = Entry(form.title.data, form.body.data, session['user_id'])
         db.session.add(newEntry)
         db.session.commit()
     return redirect(url_for('show_entries'))
@@ -76,33 +82,46 @@ def entries_render(entries):
 ## User
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    error = None
     form = signupForm()
+
     if form.validate_on_submit():
-        user = User(username=form.username.data, password=form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for('index'))
+        user = User.query.filter_by(username=form.name.data).first()
+        if (user is None):
+            user = User(form.name.data, form.password.data)
+            db.session.add(user)
+            db.session.commit()
+
+            session['logged_in'] = True
+            session['user_id'] = user.id
+            return redirect(url_for('show_entries'))
+        else:
+            error = 'Username not available'
         
-    return render_template('signup.html', form=form)
+    return render_template('signup.html', error=error, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
     form = loginForm()
     if form.validate_on_submit():
-        if (form.name.data != app.config['USERNAME']) or \
-           (form.password.data != app.config['PASSWORD']):
-            error = 'Wrong username/password combination'
+        user = User.query.filter_by(username=form.name.data).first()
+        bcrypt.check_password_hash(user._password, form.password.data)
+
+        if (user is None):
+            error = 'User does not exist'
+        elif (bcrypt.check_password_hash(user._password, form.password.data) != True):
+            error = 'Wrong user/password combination'
         else:
             session['logged_in'] = True
+            session['user_id'] = user.id
             flash('You were logged in.')
             return redirect(url_for('show_entries'))
+
     return render_template('login.html', error=error, form=form)
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out.')
-    return redirect(url_for('show_entries'))
-
-
+    return redirect(url_for('index'))

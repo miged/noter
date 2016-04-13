@@ -9,7 +9,7 @@ class loginForm(Form):
 class signupForm(Form):
 	name = StringField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
-	confirmPass = PasswordField('Confirm Password', validators=[DataRequired()])
+	#confirmPass = PasswordField('Confirm Password', validators=[DataRequired()])
 
 class entryForm(Form):
 	title = StringField('Title')
