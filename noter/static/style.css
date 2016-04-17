@@ -18,3 +18,12 @@ dt {
 	font-weight: bold;
 	margin-right: 5px;
 }
+
+.center {
+	text-align: center;
+}
+
+form {
+	display: inline-block;
+	text-align: center;
+}
