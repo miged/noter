@@ -85,7 +85,11 @@ def signup():
 
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
-        if (user is None):
+        if (user is not None):
+            error = 'Username not available'
+        elif (form.password.data != form.confirmPass.data):
+            error = 'Passwords do not match'
+        else:
             user = User(form.name.data, form.password.data)
             db.session.add(user)
             db.session.commit()
@@ -93,8 +97,6 @@ def signup():
             session['user_id'] = user.id
             session['name'] = user.username
             return redirect(url_for('index'))
-        else:
-            error = 'Username not available'
         
     return render_template('signup.html', error=error, form=form)
 
