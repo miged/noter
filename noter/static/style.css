@@ -11,19 +11,19 @@ dt {
 }
 
 #entryDate {
-	margin-right: 10px;
+    margin-right: 10px;
 }
 
 #username {
-	font-weight: bold;
-	margin-right: 5px;
+    font-weight: bold;
+    margin-right: 5px;
 }
 
 .center {
-	text-align: center;
+    text-align: center;
 }
 
 form {
-	display: inline-block;
-	text-align: center;
+    display: inline-block;
+    text-align: center;
 }

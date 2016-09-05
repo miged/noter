@@ -5,6 +5,7 @@ from models import Entry, User
 from forms import loginForm, entryForm, signupForm
 from markdown2 import Markdown
 
+
 ## Entry
 @app.route('/')
 def index():
@@ -12,8 +13,9 @@ def index():
     if not session.get('logged_in'):
         return render_template('index.html')
     user = User.query.filter_by(id=session['user_id']).first()
-    entries = entries_render(Entry.query.filter_by(user_id=session['user_id']).order_by(Entry.id))
-    return render_template('show_entries.html', entries = entries, form = form)
+    entries = entries_render(Entry.query.filter_by(
+        user_id=session['user_id']).order_by(Entry.id))
+    return render_template('show_entries.html', entries=entries, form=form)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -36,7 +38,7 @@ def edit_entry_form(id):
     form = entryForm()
     form.title.data = entry.title
     form.body.data = entry.body
-    return render_template('edit.html', entry = entry, form = form);
+    return render_template('edit.html', entry=entry, form=form)
 
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_entry(id):
@@ -56,7 +58,7 @@ def confirm_delete_entry(id):
     entry = entries_render(Entry.query.filter_by(id=id).first())
     if not session.get('logged_in') or session['user_id'] != entry.user_id:
         abort(403)
-    return render_template('delete.html', entry = entry);
+    return render_template('delete.html', entry=entry)
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_entry(id):
@@ -97,7 +99,7 @@ def signup():
             session['user_id'] = user.id
             session['name'] = user.username
             return redirect(url_for('index'))
-        
+
     return render_template('signup.html', error=error, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -110,7 +112,8 @@ def login():
 
         if (user is None):
             error = 'User does not exist'
-        elif (bcrypt.check_password_hash(user._password, form.password.data) != True):
+        elif (bcrypt.check_password_hash(
+                user._password, form.password.data) is not True):
             error = 'Wrong user/password combination'
         else:
             session['logged_in'] = True
