@@ -1,5 +1,5 @@
 from flask import url_for, redirect, render_template, abort, \
-    flash, session
+    flash, session, request
 from noter import app, db, bcrypt
 from models import Entry, User
 from forms import loginForm, entryForm, signupForm
@@ -7,15 +7,16 @@ from markdown2 import Markdown
 
 
 ## Entry
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     form = entryForm()
     if not session.get('logged_in'):
         return render_template('index.html')
-    user = User.query.filter_by(id=session['user_id']).first()
-    entries = entries_render(Entry.query.filter_by(
-        user_id=session['user_id']).order_by(Entry.id))
-    return render_template('show_entries.html', entries=entries, form=form)
+    else:
+        user = User.query.filter_by(id=session['user_id']).first()
+        entries = entries_render(Entry.query.filter_by(
+            user_id=session['user_id']).order_by(Entry.id))
+        return render_template('show_entries.html', entries=entries, form=form)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -85,12 +86,10 @@ def signup():
     error = None
     form = signupForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate():
         user = User.query.filter_by(username=form.name.data).first()
         if (user is not None):
             error = 'Username not available'
-        elif (form.password.data != form.confirmPass.data):
-            error = 'Passwords do not match'
         else:
             user = User(form.name.data, form.password.data)
             db.session.add(user)
@@ -98,8 +97,8 @@ def signup():
             session['logged_in'] = True
             session['user_id'] = user.id
             session['name'] = user.username
-            return redirect(url_for('index'))
-
+            return redirect(url_for('index')), 201
+    
     return render_template('signup.html', error=error, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
