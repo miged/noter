@@ -11,3 +11,4 @@ __pycache__/
 pip-log.txt
 *.log
 *.sqlite
+config.cfg

@@ -4,9 +4,9 @@ from flask_testing import LiveServerTestCase
 from noter import app, db
 import noter.views
 from noter.models import User, Entry
-from flask import request
 
 url = 'http://localhost:5001'
+
 
 class ModelTest(LiveServerTestCase):
     def create_app(self):
@@ -29,10 +29,10 @@ class ModelTest(LiveServerTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_signup_user(self):
-        userdata = { 
-            'name': 'User123', 
-            'password': 'P@ssw0rd', 
-            'confirmPass': 'P@ssw0rd',
+        userdata = {
+            'name': 'User123',
+            'password': 'P@ssw0rd',
+            'confirmPass': 'P@ssw0rd'
         }
         response = requests.get(url + '/signup')
         self.assertEqual(response.status_code, 200)

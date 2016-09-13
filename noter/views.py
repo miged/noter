@@ -18,6 +18,7 @@ def index():
             user_id=session['user_id']).order_by(Entry.id))
         return render_template('show_entries.html', entries=entries, form=form)
 
+
 @app.route('/add', methods=['POST'])
 def add_entry():
     form = entryForm()
@@ -28,6 +29,7 @@ def add_entry():
         db.session.add(newEntry)
         db.session.commit()
     return redirect(url_for('index'))
+
 
 # Edit entry
 @app.route('/edit/<int:id>', methods=['GET'])
@@ -41,6 +43,7 @@ def edit_entry_form(id):
     form.body.data = entry.body
     return render_template('edit.html', entry=entry, form=form)
 
+
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_entry(id):
     form = entryForm()
@@ -53,6 +56,7 @@ def edit_entry(id):
         db.session.commit()
     return redirect(url_for('index'))
 
+
 # Delete entry
 @app.route('/delete/<int:id>', methods=['GET'])
 def confirm_delete_entry(id):
@@ -60,6 +64,7 @@ def confirm_delete_entry(id):
     if not session.get('logged_in') or session['user_id'] != entry.user_id:
         abort(403)
     return render_template('delete.html', entry=entry)
+
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_entry(id):
@@ -69,6 +74,7 @@ def delete_entry(id):
     db.session.delete(entry)
     db.session.commit()
     return redirect(url_for('index'))
+
 
 def entries_render(entries):
     try:
@@ -98,8 +104,9 @@ def signup():
             session['user_id'] = user.id
             session['name'] = user.username
             return redirect(url_for('index')), 201
-    
+
     return render_template('signup.html', error=error, form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -122,6 +129,7 @@ def login():
             return redirect(url_for('index'))
 
     return render_template('login.html', error=error, form=form)
+
 
 @app.route('/logout')
 def logout():
