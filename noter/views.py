@@ -105,7 +105,7 @@ def signup():
             session['name'] = user.username
             return redirect(url_for('index')), 201
 
-    return render_template('signup.html', error=error, form=form)
+    return render_template('signup.html', error=error, form=form), 200
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -114,7 +114,6 @@ def login():
     form = loginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
-        bcrypt.check_password_hash(user._password, form.password.data)
 
         if (user is None):
             error = 'User does not exist'
@@ -126,9 +125,9 @@ def login():
             session['user_id'] = user.id
             session['name'] = user.username
             flash('You were logged in.')
-            return redirect(url_for('index'))
+            return redirect(url_for('index')), 200
 
-    return render_template('login.html', error=error, form=form)
+    return render_template('login.html', error=error, form=form), 400
 
 
 @app.route('/logout')

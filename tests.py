@@ -4,6 +4,7 @@ from flask_testing import LiveServerTestCase
 from noter import app, db
 import noter.views
 from noter.models import User, Entry
+from copy import deepcopy
 
 url = 'http://localhost:5001'
 
@@ -28,7 +29,7 @@ class ModelTest(LiveServerTestCase):
         response = requests.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_signup_user(self):
+    def test_user(self):
         userdata = {
             'name': 'User123',
             'password': 'P@ssw0rd',
@@ -49,9 +50,20 @@ class ModelTest(LiveServerTestCase):
         self.assertNotEqual(response.status_code, 201)
 
         # Test for invalid password confirmation
-        userdata['confirmPass'] = 'nopass'
-        response = requests.post(url + '/signup', data=userdata)
+        userdata2 = deepcopy(userdata)
+        userdata2['name'] = 'User456'
+        userdata2['confirmPass'] = 'nopass'
+        response = requests.post(url + '/signup', data=userdata2)
         self.assertNotEqual(response.status_code, 201)
+
+        # Test logging in
+        userdata3 = deepcopy(userdata)
+        userdata3['password'] = 'qwerty'
+        response = requests.post(url + '/login', data=userdata3)
+        self.assertEqual(response.status_code, 400)
+
+        response = requests.post(url + '/login', data=userdata)
+        self.assertEqual(response.status_code, 200)
 
 
 if __name__ == '__main__':
