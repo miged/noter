@@ -24,11 +24,11 @@ def add_entry():
     form = entryForm()
     if form.validate_on_submit:
         if not session.get('logged_in'):
-            abort(401)
+            abort(403)
         newEntry = Entry(form.title.data, form.body.data, session['user_id'])
         db.session.add(newEntry)
         db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('index')), 201
 
 
 # Edit entry
@@ -51,6 +51,7 @@ def edit_entry(id):
         entry = Entry.query.filter_by(id=id).first()
         if not session.get('logged_in') or session['user_id'] != entry.user_id:
             abort(403)
+            
         entry.title = form.title.data
         entry.body = form.body.data
         db.session.commit()

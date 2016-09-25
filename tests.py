@@ -5,9 +5,15 @@ from noter import app, db
 import noter.views
 from noter.models import User, Entry
 from copy import deepcopy
+import datetime
 
 url = 'http://localhost:5001'
 
+userdata = {
+    'name': 'User123',
+    'password': 'P@ssw0rd',
+    'confirmPass': 'P@ssw0rd'
+}
 
 class ModelTest(LiveServerTestCase):
     def create_app(self):
@@ -30,15 +36,10 @@ class ModelTest(LiveServerTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_user(self):
-        userdata = {
-            'name': 'User123',
-            'password': 'P@ssw0rd',
-            'confirmPass': 'P@ssw0rd'
-        }
         response = requests.get(url + '/signup')
         self.assertEqual(response.status_code, 200)
 
-        # Test for signing up a user
+        # Test for successful user signup
         response = requests.post(url + '/signup', data=userdata)
         self.assertEqual(response.status_code, 201)
         newUser = User.query.filter_by(username=userdata['name']).first()
@@ -56,14 +57,39 @@ class ModelTest(LiveServerTestCase):
         response = requests.post(url + '/signup', data=userdata2)
         self.assertNotEqual(response.status_code, 201)
 
-        # Test logging in
+        # Test successful login
+        response = requests.post(url + '/login', data=userdata)
+        self.assertEqual(response.status_code, 200)
+
+        # Test invalid login pass
         userdata3 = deepcopy(userdata)
         userdata3['password'] = 'qwerty'
         response = requests.post(url + '/login', data=userdata3)
         self.assertEqual(response.status_code, 400)
 
-        response = requests.post(url + '/login', data=userdata)
-        self.assertEqual(response.status_code, 200)
+
+    def test_entry(self):
+        entrydata = {
+            'title': 'Post Title',
+            'body': 'Lorem ipsum dolor sit amet'
+        }
+        session = requests.Session()
+        session.post(url + '/signup', data=userdata)
+        user = User.query.filter_by(username=userdata['name']).first()
+
+        # Add
+        # Test successful entry add
+        response = session.post(url + '/add', data=entrydata)
+        self.assertEqual(response.status_code, 201)
+
+        entry = Entry.query.filter_by(user_id=1).first()
+        self.assertEqual(entry.title, entrydata['title'])
+        self.assertEqual(entry.body, entrydata['body'])
+        self.assertEqual(entry.user_id, user.id)
+
+        # Test adding entry without signing in
+        response = requests.post(url + '/add', data=entrydata)
+        self.assertEqual(response.status_code, 403)
 
 
 if __name__ == '__main__':
