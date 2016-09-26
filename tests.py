@@ -76,6 +76,7 @@ class ModelTest(LiveServerTestCase):
         session.post(url + '/signup', data=userdata)
         user = User.query.filter_by(username=userdata['name']).first()
 
+        # Add
         # Test successful added entry
         response = session.post(url + '/add', data=entrydata)
         self.assertEqual(response.status_code, 201)
@@ -89,6 +90,7 @@ class ModelTest(LiveServerTestCase):
         response = requests.post(url + '/add', data=entrydata)
         self.assertEqual(response.status_code, 403)
 
+        # Edit
         # Test successful edited entry
         entrydata['title'] = 'Edited title'
         entrydata['body'] = 'Edited body'
@@ -100,11 +102,26 @@ class ModelTest(LiveServerTestCase):
         self.assertEqual(entry.title, entrydata['title'])
         self.assertEqual(entry.body, entrydata['body'])
 
-        # Test edit entry without signing in
+        # Test edit entry without correct user credentials
         response = requests.get(url + '/edit/' + str(entry.id))
         self.assertEqual(response.status_code, 403)
         response = requests.post(url + '/edit/' + str(entry.id), data=entrydata)
         self.assertEqual(response.status_code, 403)
+
+        # Delete
+        # Test deleting entry without correct user credentials
+        response = requests.get(url + '/delete/' + str(entry.id))
+        self.assertEqual(response.status_code, 403)
+        response = requests.post(url + '/delete/' + str(entry.id))
+        self.assertEqual(response.status_code, 403)
+
+        # Test successful entry delete
+        response = session.get(url + '/delete/' + str(entry.id))
+        self.assertEqual(response.status_code, 200)
+        response = session.post(url + '/delete/' + str(entry.id))
+        self.assertEqual(response.status_code, 200)
+        entry = Entry.query.filter_by(id=entry.id).first()
+        self.assertTrue(entry is None)
 
 
 if __name__ == '__main__':

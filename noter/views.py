@@ -64,7 +64,7 @@ def confirm_delete_entry(id):
     entry = entries_render(Entry.query.filter_by(id=id).first())
     if not session.get('logged_in') or session['user_id'] != entry.user_id:
         abort(403)
-    return render_template('delete.html', entry=entry)
+    return render_template('delete.html', entry=entry), 200
 
 
 @app.route('/delete/<int:id>', methods=['POST'])
@@ -74,7 +74,7 @@ def delete_entry(id):
         abort(403)
     db.session.delete(entry)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('index')), 200
 
 
 def entries_render(entries):
