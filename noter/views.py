@@ -51,11 +51,11 @@ def edit_entry(id):
         entry = Entry.query.filter_by(id=id).first()
         if not session.get('logged_in') or session['user_id'] != entry.user_id:
             abort(403)
-            
+
         entry.title = form.title.data
         entry.body = form.body.data
         db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('index')), 200
 
 
 # Delete entry

@@ -5,7 +5,6 @@ from noter import app, db
 import noter.views
 from noter.models import User, Entry
 from copy import deepcopy
-import datetime
 
 url = 'http://localhost:5001'
 
@@ -77,18 +76,34 @@ class ModelTest(LiveServerTestCase):
         session.post(url + '/signup', data=userdata)
         user = User.query.filter_by(username=userdata['name']).first()
 
-        # Add
-        # Test successful entry add
+        # Test successful added entry
         response = session.post(url + '/add', data=entrydata)
         self.assertEqual(response.status_code, 201)
 
-        entry = Entry.query.filter_by(user_id=1).first()
+        entry = Entry.query.filter_by(id=1).first()
         self.assertEqual(entry.title, entrydata['title'])
         self.assertEqual(entry.body, entrydata['body'])
         self.assertEqual(entry.user_id, user.id)
 
         # Test adding entry without signing in
         response = requests.post(url + '/add', data=entrydata)
+        self.assertEqual(response.status_code, 403)
+
+        # Test successful edited entry
+        entrydata['title'] = 'Edited title'
+        entrydata['body'] = 'Edited body'
+        response = session.post(url + '/edit/' + str(entry.id), data=entrydata)
+        db.session.commit()
+        self.assertEqual(response.status_code, 200)
+
+        entry = Entry.query.filter_by(id=entry.id).first()
+        self.assertEqual(entry.title, entrydata['title'])
+        self.assertEqual(entry.body, entrydata['body'])
+
+        # Test edit entry without signing in
+        response = requests.get(url + '/edit/' + str(entry.id))
+        self.assertEqual(response.status_code, 403)
+        response = requests.post(url + '/edit/' + str(entry.id), data=entrydata)
         self.assertEqual(response.status_code, 403)
 
 
