@@ -1,5 +1,5 @@
 from noter import app, db
-import noter.views
+import noter.controllers
 import noter.models
 
 if __name__ == '__main__':

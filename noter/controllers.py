@@ -3,7 +3,7 @@ from flask import url_for, redirect, render_template, abort, \
 from noter import app, db, bcrypt
 from models import Entry, User
 from forms import loginForm, entryForm, signupForm
-from markdown2 import Markdown
+from manager import *
 
 
 ## Entry
@@ -13,9 +13,7 @@ def index():
     if not session.get('logged_in'):
         return render_template('index.html')
     else:
-        user = User.query.filter_by(id=session['user_id']).first()
-        entries = entries_render(Entry.query.filter_by(
-            user_id=session['user_id']).order_by(Entry.id))
+        entries = EntryGetByUserId(session['user_id'])
         return render_template('show_entries.html', entries=entries, form=form)
 
 
@@ -25,18 +23,16 @@ def add_entry():
     if form.validate_on_submit:
         if not session.get('logged_in'):
             abort(403)
-        newEntry = Entry(form.title.data, form.body.data, session['user_id'])
-        db.session.add(newEntry)
-        db.session.commit()
+        EntryAdd(form.title.data, form.body.data, session['user_id'])
     return redirect(url_for('index')), 201
 
 
 # Edit entry
 @app.route('/edit/<int:id>', methods=['GET'])
 def edit_entry_form(id):
-    entry = Entry.query.filter_by(id=id).first()
+    entry = EntryGetById(id)
     if not session.get('logged_in') or session['user_id'] != entry.user_id:
-        abort(403)
+        abort(404)
 
     form = entryForm()
     form.title.data = entry.title
@@ -48,43 +44,27 @@ def edit_entry_form(id):
 def edit_entry(id):
     form = entryForm()
     if form.validate_on_submit:
-        entry = Entry.query.filter_by(id=id).first()
-        if not session.get('logged_in') or session['user_id'] != entry.user_id:
-            abort(403)
+        EntryEdit(id, form.title.data, form.body.data)
 
-        entry.title = form.title.data
-        entry.body = form.body.data
-        db.session.commit()
     return redirect(url_for('index')), 200
 
 
 # Delete entry
 @app.route('/delete/<int:id>', methods=['GET'])
 def confirm_delete_entry(id):
-    entry = entries_render(Entry.query.filter_by(id=id).first())
-    if not session.get('logged_in') or session['user_id'] != entry.user_id:
-        abort(403)
+    entry = EntryGetById(id)
+    if not session.get('logged_in'):
+        abort(404)
     return render_template('delete.html', entry=entry), 200
 
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_entry(id):
-    entry = Entry.query.filter_by(id=id).first()
-    if not session.get('logged_in') or session['user_id'] != entry.user_id:
-        abort(403)
-    db.session.delete(entry)
-    db.session.commit()
+    if not session.get('logged_in'):
+        abort(404)
+    EntryDelete(id)
+
     return redirect(url_for('index')), 200
-
-
-def entries_render(entries):
-    try:
-        for e in entries:
-            e.body = Markdown().convert(e.body)
-    except TypeError:
-        entries.body = Markdown().convert(entries.body)
-
-    return entries
 
 
 ## User
@@ -95,7 +75,7 @@ def signup():
 
     if request.method == 'POST' and form.validate():
         user = User.query.filter_by(username=form.name.data).first()
-        if (user is not None):
+        if user is not None:
             error = 'Username not available'
         else:
             user = User(form.name.data, form.password.data)
@@ -116,7 +96,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
 
-        if (user is None):
+        if user is None:
             error = 'User does not exist'
         elif (bcrypt.check_password_hash(
                 user._password, form.password.data) is not True):

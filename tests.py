@@ -1,14 +1,15 @@
 import unittest
+from copy import deepcopy
 import requests
 from flask_testing import LiveServerTestCase
 from noter import app, db
-import noter.views
+import noter.controllers
 from noter.models import User, Entry
-from copy import deepcopy
 
 url = 'http://localhost:5001'
 
-userdata = { 'name': 'User123',
+userdata = {
+    'name': 'User123',
     'password': 'P@ssw0rd',
     'confirmPass': 'P@ssw0rd'
 }
@@ -103,16 +104,16 @@ class ModelTest(LiveServerTestCase):
 
         # Test edit entry without correct user credentials
         res = requests.get(url + '/edit/' + str(entry.id))
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 404)
         res = requests.post(url + '/edit/' + str(entry.id), data=entrydata)
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 404)
 
         # Delete
         # Test deleting entry without correct user credentials
         res = requests.get(url + '/delete/' + str(entry.id))
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 404)
         res = requests.post(url + '/delete/' + str(entry.id))
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 404)
 
         # Test successful entry delete
         res = session.get(url + '/delete/' + str(entry.id))
