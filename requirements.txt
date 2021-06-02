@@ -9,7 +9,7 @@ colorama==0.3.2
 gyp==0.1
 html5lib==0.999
 itsdangerous==0.24
-markdown2==2.3.0
+markdown2==2.4.0
 ndg-httpsclient==0.3.2
 pyOpenSSL==0.13.1
 pyasn1==0.1.7
